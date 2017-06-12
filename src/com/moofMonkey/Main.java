@@ -63,7 +63,28 @@ public class Main extends Thread {
 				return FileVisitResult.CONTINUE;
 			}
 		});
-	};
+	}
+	
+	public static void copyFileOrFolder(Path fromPath, Path toPath) throws IOException {
+		Files.walkFileTree(fromPath, new SimpleFileVisitor<Path>() {
+			private StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
+			
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				Path targetPath = toPath.resolve(fromPath.relativize(dir));
+				if(!Files.exists(targetPath)){
+					Files.createDirectory(targetPath);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.copy(file, toPath.resolve(fromPath.relativize(file)), copyOption);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
 
 
 	private void fetchArgs(String[] args) throws Throwable {
@@ -96,7 +117,7 @@ public class Main extends Thread {
 		ar.add("-i");
 	}
 
-	private static final String[] compileableExtensions = new String[] { "xml", "css", "js" };
+	private static final String[] compileableExtensions = new String[] { "xml", "css", "js", "png" };
 	public static final List<String> compileableExtensionsList = (List<String>) Arrays.asList(compileableExtensions);
 	/***
 	 * So many try/catch IS NOT AN ERROR!
@@ -109,7 +130,7 @@ public class Main extends Thread {
 			t.printStackTrace();
 		}
 		try {
-			move(new File(tmpDir, "dota_addons/" + adoonName), outDir);
+			copyFileOrFolder(new File(tmpDir, "dota_addons/" + adoonName).toPath(), outDir.toPath());
 			ArrayList<String> cmds = new ArrayList<>();
 			cmds.add(new File("vpk", "vpk.exe").getAbsolutePath());
 			cmds.add(outDir.getAbsolutePath());
@@ -119,6 +140,7 @@ public class Main extends Thread {
 			p.waitFor();
 			out.renameTo(outNew);
 		} catch(Throwable t) {
+			t.printStackTrace();
 			System.err.println("Are you sure this addon isn't empty?");
 		}
 		try {
@@ -155,6 +177,7 @@ public class Main extends Thread {
 	}
 	
 	public void move(File from, File to) throws Throwable {
+		System.out.println("Move from: " + from.getAbsolutePath() + " to: " + to.getAbsolutePath());
 		to.mkdirs();
 		Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}

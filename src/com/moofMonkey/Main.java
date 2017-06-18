@@ -104,7 +104,7 @@ public class Main extends Thread {
 	}
 	
 	private void addBaseArgs(ArrayList<String> ar) {
-		ar.add(dota2Path + "/game/bin/win64/resourcecompiler.exe");
+		ar.add(dota2Path + "/game/bin/win64/resourcecompiler");
 		ar.add("-f");
 		ar.add("-outroot");
 		ar.add(tmpDir.getAbsolutePath());

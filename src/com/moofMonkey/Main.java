@@ -13,12 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Main extends Thread {
-	static {
-		if (OSInfo.getOs() != OSInfo.OS.WINDOWS) {
-			System.err.println("Sorry, this tool doesn't works for non-windows OS, blame Valve developers");
-			System.exit(1);
-		}
-	}
 	String dota2Path, adoonName;
 	File addonDir, tmpDir, outDir, rawOutDir;
 	File out, outNew;
